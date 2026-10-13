@@ -58,3 +58,17 @@
 - 约束/影响:取代本文件 #决策002 与 ADR 001,并使 #决策001 的二进制共享库不再作线路协议;WebSocket 需应用层封装心跳/重连/超时/会话恢复。详见 `decisions/002-three-end-websocket-json.md`。
 - 冲突:与本文件 #决策001、#决策002 及 decisions/001 冲突——按"只新增不改原文"原则,旧条目原文保留,有效性以 ADR 002 的取代关系为准。
 - 日期:2026-10-12
+
+### 007 数据访问层切片1 用 Spring Data JPA,后续可替换 MyBatis-Plus
+- 状态:已确认
+- 决定:切片1 数据访问层用 Spring Data JPA(底层 Hibernate);后续按需(复杂查询或国内求职对口)引入或替换为 MyBatis-Plus。
+- 理由:定位点存取简单,`JpaRepository` 开箱即用、免写 SQL,最快跑通切片1 闭环(呼应 #决策005)。MyBatis-Plus 国内招聘更对口但非当前必需,留作后续;两者可在同一 Spring Boot 项目共存,替换成本可控。
+- 约束/影响:实体用 `@Entity` + `JpaRepository`;切片1 配 H2 内存库,后续换 MySQL;若引入 MyBatis 需评估与 JPA 的事务/实体复用边界。
+- 日期:2026-10-12
+
+### 008 服务端技术栈锁定稳定版:Spring Boot 3.4.1 + Gradle 8.11.1 + Java 17
+- 状态:已确认
+- 决定:server 用 Spring Boot 3.4.1、Gradle 8.11.1、Java 17;打包用默认 jar(内嵌 Tomcat),不用 war。
+- 理由:Initializr 默认生成的 Spring Boot 4.1.1 + Gradle 9.7.1 太前沿,实测连续构建失败——Gradle 9 移除了 `VersionNumber`(撞 IDE Android 工具插件)和 `Convention` API(撞 `io.spring.dependency-management`),且 4.x 教程稀少、求职对口度低。降到稳定组合可直接构建通过,文档海量,招聘对口(呼应 #决策005 避免生态兔子洞)。
+- 约束/影响:Android app 与 server 用各自 IDE(IDEA 需禁用 Android 插件以免注入 Android 工具链);升级 Spring Boot/Gradle 前先确认插件兼容性;jar 打包用 `java -jar` 启动。
+- 日期:2026-10-12
