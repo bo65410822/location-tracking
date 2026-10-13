@@ -11,6 +11,7 @@
 ## 已成文卡片
 
 - [001 WebSocket 通信选型(原生 vs STOMP、JSON vs 二进制)](001-websocket-communication-choices.md)
+- [002 身份建模(设备 vs 主体,以及用中性标识解耦)](002-identity-modeling.md)
 
 ## 待沉淀清单(backlog)
 
@@ -22,5 +23,6 @@
 - [ ] Spring Boot / Gradle 版本兼容坑:Convention API、VersionNumber 为何导致构建失败,如何选稳定版
 - [ ] H2 内存库(mem)特性与 h2-console 用法:为什么重启数据就没了
 - [ ] WebSocket 单机内存广播的集群约束:多实例为何广播不到,如何用 Redis Pub/Sub / MQ 解决
+- [ ] WebSocketSession 非线程安全:并发向同一会话发送为何出错,ConcurrentWebSocketSessionDecorator 怎么解决
 
 > 规则:讨论中冒出用户不熟的概念 → 当场一句话点出 + 登记到此 backlog → 适时成文。

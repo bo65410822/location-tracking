@@ -72,3 +72,17 @@
 - 理由:Initializr 默认生成的 Spring Boot 4.1.1 + Gradle 9.7.1 太前沿,实测连续构建失败——Gradle 9 移除了 `VersionNumber`(撞 IDE Android 工具插件)和 `Convention` API(撞 `io.spring.dependency-management`),且 4.x 教程稀少、求职对口度低。降到稳定组合可直接构建通过,文档海量,招聘对口(呼应 #决策005 避免生态兔子洞)。
 - 约束/影响:Android app 与 server 用各自 IDE(IDEA 需禁用 Android 插件以免注入 Android 工具链);升级 Spring Boot/Gradle 前先确认插件兼容性;jar 打包用 `java -jar` 启动。
 - 日期:2026-10-12
+
+### 009 切片1 WebSocket 接口设计:双端点 + JSON + 单机内存广播
+- 状态:已确认
+- 决定:切片1 服务端用原生 WebSocket 开两个端点——`/ws/app`(App 上报)、`/ws/web`(Web 广播);消息 JSON(字段见设计文档);广播用单机内存会话集合扇出。
+- 理由:端点按角色分离,鉴权/限流可分别施策;JSON 字段取最小集(deviceId/lat/lng/speed/bearing/accuracy/timestamp),userId/altitude/battery 后置以保持最小闭环(#决策005)。
+- 约束/影响:单机内存广播不支持多实例(集群需 Redis Pub/Sub/MQ);`WebSocketSession` 非线程安全,并发发送需 `ConcurrentWebSocketSessionDecorator` 或加锁;两端点切片1 无鉴权(已知安全缺口,上线前必补)。详见 `websocket-interface-design.md`。
+- 日期:2026-10-12
+
+### 010 身份用语义中性的 sourceId 解耦,传输层不解释语义
+- 状态:已确认
+- 决定:定位点的身份标识用中性字段 `sourceId`(不透明字符串),服务端不解释其语义;填什么(设备/用户/车辆号)由上层接入方决定,Web 按相同 `sourceId` 归并轨迹。
+- 理由:把"身份语义"从传输/存储层解耦——协议与表结构稳定,语义升级(设备→主体)无需改协议;关注点分离,服务端只负责按 sourceId 分流+存+广播。规避了"设备级标识不稳定(换手机/重装)"直接绑死协议的问题(用户提出)。
+- 约束/影响:服务端不校验 sourceId 唯一性/稳定性,责任在上层;若需同时表达"设备 vs 主体"需另加字段(JSON 向后兼容);真正跨设备稳定的主体身份留待鉴权切片引入账号/设备绑定。详见知识卡片 `knowledge/002`。
+- 日期:2026-10-12
